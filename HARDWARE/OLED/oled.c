@@ -2,9 +2,112 @@
 #include "stdlib.h"
 #include "oledfont.h"
 #include "my_hal_spi.h"
-#include "GT20L16P1Y.h"
+//#include "GT20L16P1Y.h"
+#include "GT21L16S2Y.h"
+#include "charlib.h"
 
-#define USE_SPI
+//#define USE_SPI
+
+
+/**********************************************
+//IIC Start
+**********************************************/
+
+#ifdef MODE_IIC  //串口IIC
+
+void IIC_Start()
+{
+
+	OLED_SCLK_Set() ;
+	OLED_SDIN_Set();
+	OLED_SDIN_Clr();
+	OLED_SCLK_Clr();
+}
+
+/**********************************************
+//IIC Stop
+**********************************************/
+void IIC_Stop()
+{
+	OLED_SCLK_Set() ;
+	OLED_SDIN_Clr();
+	OLED_SDIN_Set();
+}
+/**********************************************
+//IIC ACK
+**********************************************/
+void IIC_Wait_Ack()
+{
+	OLED_SCLK_Set() ;
+	OLED_SCLK_Clr();
+}
+/**********************************************
+// IIC Write byte
+**********************************************/
+
+void Write_IIC_Byte(unsigned char IIC_Byte)
+{
+	unsigned char i;
+	unsigned char m,da;
+	da=IIC_Byte;
+	OLED_SCLK_Clr();
+	for(i=0;i<8;i++)		
+	{
+			m=da;
+		m=m&0x80;
+		if(m==0x80)
+		{OLED_SDIN_Set();}
+		else OLED_SDIN_Clr();
+			da=da<<1;
+		OLED_SCLK_Set();
+		OLED_SCLK_Clr();
+		}
+
+
+}
+/**********************************************
+// IIC Write Command
+**********************************************/
+void Write_IIC_Command(unsigned char IIC_Command)
+{
+   IIC_Start();
+   Write_IIC_Byte(0x78);            //Slave address,SA0=0
+	IIC_Wait_Ack();	
+   Write_IIC_Byte(0x00);			//write command
+	IIC_Wait_Ack();	
+   Write_IIC_Byte(IIC_Command); 
+	IIC_Wait_Ack();	
+   IIC_Stop();
+}
+/**********************************************
+// IIC Write Data
+**********************************************/
+void Write_IIC_Data(unsigned char IIC_Data)
+{
+   IIC_Start();
+   Write_IIC_Byte(0x78);			//D/C#=0; R/W#=0
+	IIC_Wait_Ack();	
+   Write_IIC_Byte(0x40);			//write data
+	IIC_Wait_Ack();	
+   Write_IIC_Byte(IIC_Data);
+	IIC_Wait_Ack();	
+   IIC_Stop();
+}
+
+void OLED_WR_Byte(u8 dat,u8 cmd)
+{
+	if(cmd)
+			{
+
+   Write_IIC_Data(dat);
+   
+		}
+	else {
+   Write_IIC_Command(dat);
+		
+	}
+}
+#endif
 
 
 #if defined USE_SPI
@@ -67,6 +170,8 @@ void ssd1306_WriteData2(uint8_t* buffer, size_t buff_size) {
 }
 #endif
 
+
+#ifdef MODE_SPI  //串口IIC
 void OLED_WR_Byte(u8 dat,u8 cmd)
 {	
 #ifndef USE_SPI
@@ -100,6 +205,7 @@ void OLED_WR_Byte(u8 dat,u8 cmd)
 
 #endif
 }
+#endif
 
 //开启OLED显示 
 void OLED_DisPlay_On(void)
@@ -276,21 +382,32 @@ void OLED_ShowChar(u8 x,u8 y,u8 chr,u8 size1,u8 mode)
 //mode:0,反色显示;1,正常显示
 void OLED_ShowString(u8 x,u8 y,u8 *chr,u8 size1,u8 mode)
 {
-	u8 pBuff[32];//16*16点阵
+	u8 pBuff[32];//点阵数组
 	//while((*chr>=' ')&&(*chr<='~'))//判断是不是非法字符!
+	u32 address;
 	while(*chr!='\0')//判断是不是字符串末尾!
 	{
 		if(*chr<0x80){ //ASCII 码 *chr是ASCII码
 			//OLED_ShowChar(x,y,*chr,size1,mode);
-			WW_GetData(*chr,pBuff);
+			//WW_GetData(*chr,pBuff);
+			address=0x66d40+(*chr-0x20)*12;
+			ASCII_GetData(*chr,ASCII_6X12,pBuff);//读取6X12点阵 ASCII 编码A的点阵数据，并将点阵数据存在pBuff数组中；数据长度为12 BYTE
 			OLED_ShowASCIIFromBuff(x,y,mode,pBuff);
-			x+=8;
+			x+=6;
 //			if(size1==8)x+=6;
 //			else x+=size1/2;
 		}else{//汉字编码*chr是汉字编码的高位，*(chr+1)是汉字编码的低位
-			GB2312_16_GetData_v2(*chr,*(chr+1),pBuff);
-			OLED_ShowChineseFromBuff(x,y,16,mode,pBuff);
-			x+=16;
+			//GB2312_16_GetData_v2(*chr,*(chr+1),pBuff);
+			if(*chr >=0xA1 && *chr <= 0xA3 && *(chr+1) >=0xA1)
+					address =( (*chr - 0xA1) * 94 + (*(chr+1) - 0xA1))*24+ 0x3cf80;
+			else if(*chr == 0xA9 && *(chr+1) >=0xA1)
+					address =( 282 + (*(chr+1) - 0xA1))*24+ 0x3cf80;
+			else if(*chr >=0xB0 && *chr <= 0xF7 && *(chr+1) >=0xA1)
+					address = ((*chr - 0xB0) * 94 + (*(chr+1) - 0xA1)+ 376)*24+ 0x3cf80;
+			//gt_12_GetData(0xb0,0xa1,pBuff); //读取12X12点阵汉字“啊”的点阵数据，并将点阵数据存在DZ_Data数组中；数据长度为24 BYTE
+			gt_12_GetData(*(chr),*(chr+1),pBuff); //读取12X12点阵汉字“啊”的点阵数据，并将点阵数据存在DZ_Data数组中；数据长度为24 BYTE
+			OLED_ShowChineseFromBuff(x,y,12,mode,pBuff);
+			x+=12;
 			chr++;
 		}
 		
@@ -377,9 +494,10 @@ void OLED_ShowChineseFromBuff(u8 x,u8 y,u8 size1,u8 mode,u8* buff)
 	u8 m,temp;
 	u8 x0=x,y0=y;
 	u16 i,size3=(size1/8+((size1%8)?1:0))*size1;  //得到字体一个字符对应点阵集所占的字节数
+	size3=24;//12*12汉字字体，占24个字节，size1应当为12
 	for(i=0;i<size3;i++)
 	{
-		temp=buff[i];//调用16*16字体
+		temp=buff[i];//调用12*12字体
 
 		for(m=0;m<8;m++)
 		{
@@ -394,16 +512,16 @@ void OLED_ShowChineseFromBuff(u8 x,u8 y,u8 size1,u8 mode,u8* buff)
 		y=y0;
 	}
 }
-//16*8的ascii字符
+//12*6的ascii字符，12个字节
 void OLED_ShowASCIIFromBuff(u8 x,u8 y,u8 mode,u8* buff)
 {
 	u8 m,temp;
 	u8 x0=x,y0=y;
-	u8 size1=8;
-	u16 i,size3=16;  //得到字体一个字符对应点阵集所占的字节数
+	u8 size1=6;  //字体列数
+	u16 i,size3=12;  //得到字体一个字符对应点阵集所占的字节数
 	for(i=0;i<size3;i++)
 	{
-		temp=buff[i];//调用16*16字体
+		temp=buff[i];//调用6*12字体
 
 		for(m=0;m<8;m++)
 		{
@@ -503,21 +621,25 @@ GPIO_InitTypeDef GPIO_InitStruct;
   /* GPIO Ports Clock Enable */
 //  __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
-//  __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
 
 
   /*Configure GPIO pins : PA0 PA1 PA2 PA15 */
 //  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_15;
-  GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_7;
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_6|GPIO_PIN_7;
 
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 	
   /*Configure GPIO pin Output Level */
 //  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_15, GPIO_PIN_SET);
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_7, GPIO_PIN_SET);
+  //HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_7, GPIO_PIN_SET);
+	  GPIO_InitStruct.Pin = GPIO_PIN_2;
+		HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+		
+		//HAL_GPIO_WritePin(GPIOB,GPIO_PIN_0,GPIO_PIN_RESET);//设置cs引脚为低电平
 #else
   /* GPIO Ports Clock Enable */
 //  __HAL_RCC_GPIOH_CLK_ENABLE();
@@ -525,9 +647,9 @@ GPIO_InitTypeDef GPIO_InitStruct;
 //	Spi_Init();
 #endif
 	
-	OLED_RES_Clr();
+	OLED_RST_Clr();
 	HAL_Delay(200);
-	OLED_RES_Set();
+	OLED_RST_Set();
 	
 	
 	

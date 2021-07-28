@@ -1,8 +1,9 @@
 #include "main.h"
 #include "my_hal_spi.h"
+#include "charlib.h"
 
-#define CHARLIB_CS_PORT GPIOB
-#define CHARLIB_CS_PIN GPIO_PIN_0
+#define CHARLIB_CS_PORT GPIOA
+#define CHARLIB_CS_PIN GPIO_PIN_4
 
 
 extern SPI_HandleTypeDef SpiHandle;
@@ -49,6 +50,7 @@ unsigned long r_dat_bat(unsigned long address,unsigned long DataLen,unsigned cha
 	addrLow=(unsigned char)address;
 
 //	Rom_csL;          //片选选中字库芯片
+	HAL_GPIO_WritePin(CHARLIB_CS_PORT, CHARLIB_CS_PIN, GPIO_PIN_SET); // command
 	HAL_GPIO_WritePin(CHARLIB_CS_PORT, CHARLIB_CS_PIN, GPIO_PIN_RESET); // command
 	HAL_SPI_Transmit(&SpiHandle,&com,1,0xffff);
 	//SPI1_ReadWriteByte(0x03);	//普通读取首先送0X03,然后发送地址高八位addrHigh，中八位addrMid，低八位addrLow。
@@ -60,7 +62,20 @@ unsigned long r_dat_bat(unsigned long address,unsigned long DataLen,unsigned cha
 
 	//Rom_csH;
 	HAL_GPIO_WritePin(CHARLIB_CS_PORT, CHARLIB_CS_PIN, GPIO_PIN_SET); // command
-	return i;
+	return DataLen;
+}
+void CX_gt_12_GetData (unsigned char MSB,unsigned char LSB,unsigned char *DZ_Data)
+{
+	unsigned long BaseAdd=0x3cf80;
+	unsigned long Address;
+	if(MSB >=0xA1 && MSB <= 0xA3 && LSB >=0xA1)
+		Address =( (MSB - 0xA1) * 94 + (LSB - 0xA1))*24+ BaseAdd;
+	else if(MSB == 0xA9 && LSB >=0xA1)
+		Address =(282 + (LSB - 0xA1))*24+ BaseAdd;
+	else if(MSB >=0xB0 && MSB <= 0xF7 && LSB >=0xA1)
+		Address = ((MSB - 0xB0) * 94 + (LSB - 0xA1)+ 376)*24+ BaseAdd;
+	r_dat_bat(Address,24,DZ_Data);
+
 }
 /*******************************/
 static void SPI_Address(unsigned char AddH,unsigned char AddM,unsigned char AddL) 

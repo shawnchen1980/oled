@@ -9,7 +9,7 @@
 #define LED_OFF   HAL_GPIO_WritePin(GPIOA,GPIO_PIN_15, GPIO_PIN_SET)
 
 //-----------------OLED端口定义---------------- 
-
+#ifdef USE_SPI
 #define OLED_SCL_Clr() HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5, GPIO_PIN_RESET)//CLK
 #define OLED_SCL_Set() HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5, GPIO_PIN_SET)
 
@@ -24,7 +24,21 @@
  
 #define OLED_CS_Clr()  HAL_GPIO_WritePin(GPIOA,GPIO_PIN_4, GPIO_PIN_RESET)//CS
 #define OLED_CS_Set()  HAL_GPIO_WritePin(GPIOA,GPIO_PIN_4, GPIO_PIN_SET)
+#endif
 
+#define MODE_IIC
+
+//-------------------IIC---------------------
+#ifdef MODE_IIC
+#define OLED_SCLK_Clr() HAL_GPIO_WritePin(GPIOB,GPIO_PIN_6,GPIO_PIN_RESET)//CLK
+#define OLED_SCLK_Set() HAL_GPIO_WritePin(GPIOB,GPIO_PIN_6,GPIO_PIN_SET)
+
+#define OLED_SDIN_Clr() HAL_GPIO_WritePin(GPIOB,GPIO_PIN_7,GPIO_PIN_RESET)//DIN
+#define OLED_SDIN_Set() HAL_GPIO_WritePin(GPIOB,GPIO_PIN_7,GPIO_PIN_SET)
+
+#define OLED_RST_Clr() HAL_GPIO_WritePin(GPIOA,GPIO_PIN_2,GPIO_PIN_RESET)//RES
+#define OLED_RST_Set() HAL_GPIO_WritePin(GPIOA,GPIO_PIN_2,GPIO_PIN_SET)
+#endif
 
 #define OLED_CMD  0	//写命令
 #define OLED_DATA 1	//写数据

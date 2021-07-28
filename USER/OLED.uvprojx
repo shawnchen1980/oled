@@ -313,7 +313,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>4</Optim>
+            <Optim>1</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -439,16 +439,6 @@
               <FilePath>..\HARDWARE\OLED\charlib.c</FilePath>
             </File>
             <File>
-              <FileName>GT20L16P1Y.lib</FileName>
-              <FileType>4</FileType>
-              <FilePath>..\HARDWARE\OLED\GT20L16P1Y.lib</FilePath>
-            </File>
-            <File>
-              <FileName>GT20L16P1Y.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\HARDWARE\OLED\GT20L16P1Y.h</FilePath>
-            </File>
-            <File>
               <FileName>ugui_SSD1309.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\OLED\uGUI_Driver\ugui_SSD1309.c</FilePath>
@@ -472,6 +462,16 @@
               <FileName>keypad.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\keypad.c</FilePath>
+            </File>
+            <File>
+              <FileName>GT21L16S2Y_STM32L031G6U6.lib</FileName>
+              <FileType>4</FileType>
+              <FilePath>..\HARDWARE\OLED\GT21L16S2Y_STM32L031G6U6.lib</FilePath>
+            </File>
+            <File>
+              <FileName>GT21L16S2Y.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\HARDWARE\OLED\GT21L16S2Y.h</FilePath>
             </File>
           </Files>
         </Group>

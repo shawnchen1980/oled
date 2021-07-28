@@ -33,12 +33,14 @@
 #include "my_hal_spi.h"
 #include "my_hal_tim.h"
 #include "oled_menu.h"
-#include "GT20L16P1Y.h"
+//#include "GT20L16P1Y.h"
+#include "GT21L16S2Y.h"
 #include "ugui_SSD1309.h"
 #include "ugui.h"
 #include "wnd_settime.h"
 #include "wnd_mainmenu.h"
 #include "keypad.h"
+
 //unsigned long GB2312_16_GetData_v2( unsigned char MSB,unsigned char LSB , unsigned char * DZ_Data);
 
 
@@ -84,8 +86,9 @@ int main(void)
 	Uart_Init();
 	Spi_Init();
 	Timer_Init();
-
+//while(1){
 //	printf("system core clock is %d",SystemCoreClock);
+//}
 //	char buf[20];
 //	
 //	printf("hello中国中");
@@ -126,9 +129,16 @@ const u8 *menus1[]={
 
 	
 };
-char* chr="你h";
+u8 chr[]="你好吗hello";
+u8 pBuff1[32];
+//			ASCII_GetData('H',ASCII_6X12,pBuff1);//读取6X12点阵 ASCII 编码A的点阵数据，并将点阵数据存在pBuff数组中；数据长度为12 BYTE
+//			OLED_ShowASCIIFromBuff(10,20,1,pBuff1);
+			//gt_16_GetData(0xb0,0xa1,pBuff1); //读取12X12点阵汉字“啊”的点阵数据，并将点阵数据存在DZ_Data数组中；数据长度为24 BYTE
+			//OLED_ShowChineseFromBuff(10,20,16,1,pBuff1);
 //GB2312_16_GetData_v2(*chr,*(chr+1),pBuff);
 //OLED_ShowChineseFromBuff(10,20,16,1,pBuff);
+
+		//r_dat_bat(0x3b7c0,12,pBuff1);
 		OLED_ShowString(10,20,chr,WORD_SIZE,1);
 		//UG_PutString(10,20,"hello");
 		//HAL_Delay(5000);

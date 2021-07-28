@@ -5,17 +5,17 @@
 #include "oled.h"
 
 /*
-左侧端口对H1引脚的情况下
+左侧端口对H1引脚的情况下，row x col
 */
-#if(0)
-#define KEY_HOME			0x32
-#define KEY_START			0x62
-#define KEY_UP				0x52
-#define KEY_DOWN			0x51
-#define KEY_LEFT			0x31
-#define KEY_RIGHT			0x61
-#define KEY_OK				0x30
-#define KEY_CANCEL		0x60
+#if(1)
+#define KEY_HOME			0x31
+#define KEY_START			0x33
+#define KEY_UP				0x32
+#define KEY_DOWN			0x22
+#define KEY_LEFT			0x21
+#define KEY_RIGHT			0x23
+#define KEY_OK				0x11
+#define KEY_CANCEL		0x13
 
 #else
 
