@@ -46,9 +46,10 @@
 /* USER CODE BEGIN Includes */
 #include "stm32l0xx_hal.h"
 #include "oled.h"
+#include "stdint.h"
 //#include "bmp.h"
 
-
+extern uint8_t getBuffer[255];
 /* USER CODE END Includes */
 
 /* Private define ------------------------------------------------------------*/

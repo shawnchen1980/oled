@@ -10,24 +10,21 @@ HAL_StatusTypeDef Spi_Init()
 		__HAL_RCC_GPIOB_CLK_ENABLE();
 
 
-  /*Configure GPIO pins : PA0 PA1 PA2 PA15 */
-//  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_15;
-  GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
+//  /*Configure GPIO pins : PA4 */
 
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+	//以下代码主要为开启PA4引脚而设置，而PA4对应字库芯片的CS引脚，因此这段代码本身与SPI通信设置无关，与字库芯片初始化有关
+ GPIO_InitStruct.Pin = GPIO_PIN_4;//|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
+
+ GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+ GPIO_InitStruct.Pull = GPIO_PULLUP;
+ GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+ HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 	
-//	GPIO_InitStruct.Pin = GPIO_PIN_0;
-//	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-//  GPIO_InitStruct.Pull = GPIO_PULLUP;
-//  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-//  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
 	
   /*Configure GPIO pin Output Level */
-//  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_15, GPIO_PIN_SET);
-//  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
+  //HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_15, GPIO_PIN_SET);
+  //HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
 	//HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
 	  /*##-1- Configure the SPI peripheral #######################################*/
   /* Set the SPI parameters */

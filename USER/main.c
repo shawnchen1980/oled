@@ -47,13 +47,15 @@
 extern __IO ITStatus UartReady;
 extern UART_HandleTypeDef UartHandle;
 uint8_t pBuff[25];
+//串口数据接收缓存
+uint8_t getBuffer[255];
 
 /* Buffer used for transmission */
 uint8_t aTxBuffer[] = " ****UART_TwoBoards_ComIT****  ****UART_TwoBoards_ComIT****  ****UART_TwoBoards_ComIT**** ";
 
 /* Buffer used for reception */
 uint8_t aRxBuffer[255];
-uint8_t value;
+uint8_t value;//
 
 
 void SystemClock_Config(void);
@@ -81,11 +83,11 @@ int main(void)
 	
 	u8 t=' ';
 //	const char* x="中";
-	HAL_Init();
-	SystemClock_Config();
-	Uart_Init();
-	Spi_Init();
-	Timer_Init();
+	HAL_Init();//初始化系统中断，时钟等底层硬件资源，系统自带
+	SystemClock_Config();//初始化CPU、AHB、APB等总线时钟，系统自带
+	Uart_Init();//初始化串口参数（如波特率），自定义，PA9发送-PA10接收，初始化
+	Spi_Init();//初始化SPI，主要用于字库的访问，配置相关引脚和参数，主要是PA5-7，包括时钟，MOSI和MISO，自定义
+	Timer_Init();//初始化定时器，自定义
 //while(1){
 //	printf("system core clock is %d",SystemCoreClock);
 //}
@@ -104,16 +106,16 @@ int main(void)
 //	MC_AddItem(4,5);
 //	MC_AddItem(4,6);
 //	MC_AddItem(6,7);
-	OLED_Init();	
+	OLED_Init();	//初始化IIC通信三个pin，PA2-RES,PB6-CLK,PB7-DIN，之后是针对oled屏的一系列开启命令，确保能点亮屏
 	
-	UG_Init(&gui1309, Display_PSet, DISPLAY_WIDTH, DISPLAY_HEIGHT);
-	Keypad_Init();
+	UG_Init(&gui1309, Display_PSet, DISPLAY_WIDTH, DISPLAY_HEIGHT);//初始化ugui库，关键是设置Display_PSet函数，实现画点（调用OLED_DrawPoint，实际上只改显存，调用ug函数后还需刷新才能真正画点）
+	Keypad_Init();//初始化矩阵键盘，H-PA1，PA8，PB1，L-PA0，PA3，PB3这些引脚需要初始化
 	//UG_FillScreen(0);
 	
 	//mc.currWnd =CreateWindow_SetTime();
-	mc.currWnd=CreateWindow_MainMenu();
+	mc.currWnd=CreateWindow_MainMenu();//定义窗体大小，标题内容，控件内容及显示位置，设置该窗体为将要显示的窗体，设置窗体的输入处理函数
 
-    UG_Update();
+    UG_Update();//1.在显存中重画窗体以反映前面针对窗体所作的更改，2.调用当前窗体的处理函数ProcessInputData以处理窗体接收到的命令
 //		
 //		UG_FontSelect(&FONT_4X6);
 //		UG_PutChar ( ':' , 58 , 43 , C_WHITE, C_BLACK );
@@ -142,16 +144,16 @@ u8 pBuff1[32];
 		OLED_ShowString(10,20,chr,WORD_SIZE,1);
 		//UG_PutString(10,20,"hello");
 		//HAL_Delay(5000);
-		OLED_Refresh();
+		OLED_Refresh();//调用硬件指令刷新oled屏，将显存中的内容真正显示到oled屏上
 					//GetKey();
 		while(1){
 
-		while(!value){}
+		while(!value){}//当没有任何输入时死循环，输入来自于中断处理函数SysTick_Handler
 			if(mc.currWnd){
-				CX_InputUpdate(value);
+				CX_InputUpdate(value);//根据value值设置gui->input内容
 				value='\0';
-				UG_Update();
-				OLED_Refresh();					
+				UG_Update();//处理gui->input数据，以此为依据更改窗体内容
+				OLED_Refresh();	//根据显存刷新oled屏显示内容				
 				
 			}
 //			t=GetKey();
@@ -205,88 +207,9 @@ u8 pBuff1[32];
 
 	//LED_ON;
 	//Uart_Action();
-	while(1)
-	{
-		switch(value) {
-			case 'u':
-				MC_MoveToPrevItem();
-				MC_DisplayCurrentMenu();
-				value=0;
-				break;
-			case 'd':
-				MC_MoveToNextItem();
-				MC_DisplayCurrentMenu();
-				value=0;
-				break;
-			case 'e':
-				MC_MoveToSubMenu();
-				MC_DisplayCurrentMenu();
-				value=0;
-				break;
-			case 'b':
-				MC_MoveToParentMenu();
-				MC_DisplayCurrentMenu();
-				value=0;
-				break;
-			default:
-				break;
-		}
-		
-		/*
-		概念代码
-		while(!input){}//假如没有输入就一直停止
-		if(!currentWndProc) 
-			menuProc(input);//menuProc就是上述的菜单处理例程
-		else
-			currentWndProc(input)
-		
-		*/
-		//HAL_UART_Receive_IT(&UartHandle, (uint8_t *)&value,1);
-			if(0){
-//			OLED_ShowPicture(0,0,128,64,BMP1,1);
-	//		OLED_Refresh();
-	//		HAL_Delay(500);
-	//		OLED_Clear();
-	//		OLED_ShowChinese(0,0,0,16,1);//中
-	//		OLED_ShowChinese(18,0,1,16,1);//景
-	//		OLED_ShowChinese(36,0,2,16,1);//园
-	//		OLED_ShowChinese(54,0,3,16,1);//电
-	//		OLED_ShowChinese(72,0,4,16,1);//子
-	//		OLED_ShowChinese(90,0,5,16,1);//技
-	//		OLED_ShowChinese(108,0,6,16,1);//术
-			//OLED_ShowString(8,16,"ZHONGJINGYUAN",16,1);
-	//		OLED_ShowString(20,32,"2014/05/01",16,1);
-	//		OLED_ShowString(0,48,"ASCII:",16,1);  
-	//		OLED_ShowString(63,48,"CODE:",16,1);
-	//		OLED_ShowChar(48,48,t,16,1);//显示ASCII字符	   
-	//		t++;
-	//		if(t>'~')t=' ';
-			OLED_ShowChar(0,5,'>',16,1);
-			OLED_ShowNum(10,5,123,3,16,1);
-			OLED_ShowNum(10,20,456,3,16,1);
-			OLED_ShowNum(10,35,789,3,16,1);
-			OLED_ShowNum(10,50,999,3,16,1);
-			OLED_Refresh();
-			HAL_Delay(500);
-			OLED_Clear();
-			OLED_ShowChinese(0,0,0,16,1);  //16*16 中
-	//	  OLED_ShowChinese(16,0,0,24,1); //24*24 中
-	//		OLED_ShowChinese(24,20,0,32,1);//32*32 中
-	//	  OLED_ShowChinese(64,0,0,64,1); //64*64 中
-	//		OLED_Refresh();
-	//	  HAL_Delay(500);
-	//  	OLED_Clear();
-	//		OLED_ShowString(0,0,"ABC",8,1);//6*8 “ABC”
-	//		OLED_ShowString(0,8,"ABC",12,1);//6*12 “ABC”
-	//	  OLED_ShowString(0,20,"ABC",16,1);//8*16 “ABC”
-	//		OLED_ShowString(0,36,"ABC",24,1);//12*24 “ABC”
-			OLED_Refresh();
-			HAL_Delay(1500);
-			OLED_ScrollDisplay(11,4,1);
-		}
-	}
+	
 }
-
+//在串口端等待输入，无输入时一直打印等待信息（阻塞），有输入后打印输入内容并退出
 void Uart_Action(void)
 {
 		Uart_Init();

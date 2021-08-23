@@ -64,7 +64,7 @@ void DisplayCurrentPage(UG_WINDOW* wnd)
 	for(u8 i=spos,j=0;i<mc.menu[mc.pos].len || j<PAGE_SIZE;i++,j++)
 	{
 		if(i-spos+1>PAGE_SIZE) break;//要显示的内容超过页面容量
-		if(i>=mc.menu[mc.pos].len) { //页面容量超出要显示的内容，隐藏剩余文本框
+		if(i>=mc.menu[mc.pos].len) { //页面容量超出要显示的内容，隐藏剩余占位文本框控件
 			UG_TextboxHide(wnd,textboxIds[j]);
 		}
 		else { //页面有容量，菜单有内容

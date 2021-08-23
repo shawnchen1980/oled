@@ -108,6 +108,7 @@ extern uint8_t value;
 /**
 * @brief This function handles System tick timer.
 */
+//系统时钟每读100个数去读取一下矩阵键盘，如果键盘有输入，对value赋值lrudoc->对应左右上下确认取消
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
@@ -161,8 +162,9 @@ void SysTick_Handler(void)
 extern UART_HandleTypeDef UartHandle;
 extern __IO ITStatus UartReady;
 
-uint8_t getBuffer[100];
+
 int count=0;
+//下列串口中断处理程序会将收到的报文放入getBuffer缓存区
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
@@ -190,6 +192,7 @@ void USART2_IRQHandler(void)
 				
 				if(count>0){
 //				printf("%s",(char*)getBuffer);
+					
 				value=getBuffer[0];
     	 	count=0;
 				return;}
