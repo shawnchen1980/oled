@@ -1,30 +1,32 @@
-#include "wnd_mainmenu.h"
+#include "wnd_popup.h"
 #include "main.h"
 #include "my_hal_uart.h"
 
 //test window functions
 static UG_OBJECT obj_buff_wnd_1[10];
 static UG_WINDOW window_1;
-static UG_TEXTBOX textbox[PAGE_SIZE];
-static u8 textboxIds[]={TXB_ID_0,TXB_ID_1,TXB_ID_2,TXB_ID_3,TXB_ID_4,TXB_ID_5};
+static UG_TEXTBOX textbox[PAGE_SIZE*2];
+static u8 textboxIds[]={TXB_ID_0,TXB_ID_1,TXB_ID_2,TXB_ID_3,TXB_ID_4,TXB_ID_5,TXB_ID_6,TXB_ID_7,TXB_ID_8,TXB_ID_9,TXB_ID_10,TXB_ID_11,TXB_ID_12};
 static void ProcessInputData( UG_WINDOW* wnd );
 static void window_1_callback(UG_MESSAGE *msg);
 
 static void DisplayCurrentPage(UG_WINDOW* wnd);
 static u8 itemCount,focusPos=0;//当前页面下项目数，被选中的项目位置
 
-UG_WINDOW* CreateWindow_MainMenu()
+UG_WINDOW* CreateWindow_Popup()
 {
 		UG_WindowCreate(&window_1, obj_buff_wnd_1, 10, window_1_callback);
     // Window Title
 //    UG_WindowSetTitleText(&window_1, "Test Window - \xe6GUI v0.31   \x02");      //  \xhh : Special CHR the ASCII value is given by hh interpreted as a hexadecimal number (Check FONT Table)
-    UG_WindowSetTitleText(&window_1, "Main Menu");      //  \xhh : Special CHR the ASCII value is given by hh interpreted as a hexadecimal number (Check FONT Table)
+    UG_WindowSetTitleText(&window_1, "Alert!!");      //  \xhh : Special CHR the ASCII value is given by hh interpreted as a hexadecimal number (Check FONT Table)
     UG_WindowSetTitleTextFont(&window_1, &FONT_4X6);
 		UG_WindowSetTitleTextColor(&window_1,0);
     UG_WindowSetXStart(&window_1, 0);
     UG_WindowSetYStart(&window_1, 0);
     UG_WindowSetXEnd(&window_1, 127);       // Window 128x64
     UG_WindowSetYEnd(&window_1, 63);
+	
+		UG_WindowSetStyle(&window_1,WND_STYLE_3D & ~WND_STYLE_SHOW_TITLE);
 
 		
 //		UG_ButtonCreate(&window_1, &button_1, BTN_ID_0, 25, 25, 40, 40);
@@ -40,14 +42,22 @@ UG_WINDOW* CreateWindow_MainMenu()
 		UG_TextboxCreate(&window_1, &textbox[i], textboxIds[i], x, y, x+ROW_WIDTH-1, y+ROW_HEIGHT-1);
 //    UG_TextboxSetFont(&window_1, TXB_ID_0, &FONT_4X6);//5列8行，每个字宽5列，高8行
     //UG_TextboxSetText(&window_1, TXB_ID_0, "00");
-		UG_TextboxSetText(&window_1, textboxIds[i], "XX");
+		UG_TextboxSetText(&window_1, textboxIds[i], "甲乙丙丁戊己庚辛");
     UG_TextboxSetForeColor(&window_1, textboxIds[i], C_WHITE);
 		UG_TextboxSetBackColor(&window_1, textboxIds[i], C_BLACK);
     UG_TextboxSetAlignment(&window_1, textboxIds[i], ALIGN_CENTER);
+		
+		UG_TextboxCreate(&window_1, &textbox[i+PAGE_SIZE], textboxIds[i+PAGE_SIZE], x+ROW_WIDTH, y, x+ROW_WIDTH+9, y+ROW_HEIGHT-1);
+//    UG_TextboxSetFont(&window_1, TXB_ID_0, &FONT_4X6);//5列8行，每个字宽5列，高8行
+    //UG_TextboxSetText(&window_1, TXB_ID_0, "00");
+		UG_TextboxSetText(&window_1, textboxIds[i+PAGE_SIZE], "H");
+    UG_TextboxSetForeColor(&window_1, textboxIds[i+PAGE_SIZE], C_WHITE);
+		UG_TextboxSetBackColor(&window_1, textboxIds[i+PAGE_SIZE], C_BLACK);
+    UG_TextboxSetAlignment(&window_1, textboxIds[i+PAGE_SIZE], ALIGN_CENTER);
 		y+=ROW_HEIGHT;
 	}
 	
-	MC_Init(&window_1);
+	//MC_Init(&window_1);
 
 	DisplayCurrentPage(&window_1);
 			
@@ -59,24 +69,24 @@ UG_WINDOW* CreateWindow_MainMenu()
 }
 void DisplayCurrentPage(UG_WINDOW* wnd)
 {
-	u8 pos=mc.menu[mc.pos].pos,spos=0;
-	spos=pos-pos%PAGE_SIZE;//当前项目位置对应的页首项目位置
-	itemCount=0;
-	focusPos=pos-spos;//当前选中项在当前页面是第几项
-	for(u8 i=spos,j=0;i<mc.menu[mc.pos].len || j<PAGE_SIZE;i++,j++)
-	{
-		if(i-spos+1>PAGE_SIZE) break;//要显示的内容超过页面容量
-		if(i>=mc.menu[mc.pos].len) { //页面容量超出要显示的内容，隐藏剩余占位文本框控件
-			UG_TextboxHide(wnd,textboxIds[j]);
-		}
-		else { //页面有容量，菜单有内容
-			itemCount++;
-			u8 index=mc.menu[mc.pos].item[i].id;
-			UG_TextboxSetText(wnd,textboxIds[j],menus[index]);
-			UG_TextboxShow(wnd,textboxIds[j]);
-		}
+//	u8 pos=mc.menu[mc.pos].pos,spos=0;
+//	spos=pos-pos%PAGE_SIZE;//当前项目位置对应的页首项目位置
+//	itemCount=0;
+	focusPos=0;//当前选中项在当前页面是第几项
+//	for(u8 i=spos,j=0;i<mc.menu[mc.pos].len || j<PAGE_SIZE;i++,j++)
+//	{
+//		if(i-spos+1>PAGE_SIZE) break;//要显示的内容超过页面容量
+//		if(i>=mc.menu[mc.pos].len) { //页面容量超出要显示的内容，隐藏剩余占位文本框控件
+//			UG_TextboxHide(wnd,textboxIds[j]);
+//		}
+//		else { //页面有容量，菜单有内容
+//			itemCount++;
+//			u8 index=mc.menu[mc.pos].item[i].id;
+//			UG_TextboxSetText(wnd,textboxIds[j],menus[index]);
+//			UG_TextboxShow(wnd,textboxIds[j]);
+//		}
 
-	}
+//	}
 	CX_FocusObj(wnd,focusPos);
 }
 

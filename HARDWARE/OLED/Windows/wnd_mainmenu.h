@@ -3,7 +3,7 @@
 
 #define PAGE_SIZE 2
 #define ROW_WIDTH 100
-#define ROW_HEIGHT 16
+//#define ROW_HEIGHT 16
 #define H_SPACE 1
 #define V_SPACE 1
 

@@ -1,30 +1,4 @@
-//////////////////////////////////////////////////////////////////////////////////	 
-//本程序只供学习使用，未经作者许可，不得用于其它任何用途
-//中景园电子
-//店铺地址：http://shop73023976.taobao.com
-//
-//  文 件 名   : main.c
-//  版 本 号   : v2.0
-//  作    者   : HuangKai
-//  生成日期   : 2018-0101
-//  最近修改   : 
-//  功能描述   : STM32L053C8T6开发板点亮显示屏实验
-//              说明: 
-//              ----------------------------------------------------------------
-//              GND    电源地
-//              VCC  接5V或3.3v电源
-//              D0   PA0（SCL）
-//              D1   PA1（SDA）
-//              RES  PA2
-//              DC   PA3
-//              CS   PA4 
-//              ----------------------------------------------------------------
-// 修改历史   :
-// 日    期   : 
-// 作    者   : HuangKai
-// 修改内容   : 创建文件
-//版权所有，盗版必究。
-//Copyright(C) 中景园电子2018
+
 #include "main.h"
 
 
@@ -39,6 +13,7 @@
 #include "ugui.h"
 #include "wnd_settime.h"
 #include "wnd_mainmenu.h"
+#include "wnd_popup.h"
 #include "keypad.h"
 
 //unsigned long GB2312_16_GetData_v2( unsigned char MSB,unsigned char LSB , unsigned char * DZ_Data);
@@ -47,15 +22,20 @@
 extern __IO ITStatus UartReady;
 extern UART_HandleTypeDef UartHandle;
 uint8_t pBuff[25];
+
+
 //串口数据接收缓存
 uint8_t getBuffer[255];
+uint8_t value;//来自中断处理函数传来的消息,getBuffer[0]的值
+uint8_t frameSize;//从串口收到的报文具体长度
+
+
 
 /* Buffer used for transmission */
 uint8_t aTxBuffer[] = " ****UART_TwoBoards_ComIT****  ****UART_TwoBoards_ComIT****  ****UART_TwoBoards_ComIT**** ";
 
 /* Buffer used for reception */
 uint8_t aRxBuffer[255];
-uint8_t value;//
 
 
 void SystemClock_Config(void);
@@ -113,7 +93,8 @@ int main(void)
 	//UG_FillScreen(0);
 	
 	//mc.currWnd =CreateWindow_SetTime();
-	mc.currWnd=CreateWindow_MainMenu();//定义窗体大小，标题内容，控件内容及显示位置，设置该窗体为将要显示的窗体，设置窗体的输入处理函数
+	//mc.currWnd=CreateWindow_MainMenu();//定义窗体大小，标题内容，控件内容及显示位置，设置该窗体为将要显示的窗体，设置窗体的输入处理函数
+	mc.currWnd=CreateWindow_Popup();
 
     UG_Update();//1.在显存中重画窗体以反映前面针对窗体所作的更改，2.调用当前窗体的处理函数ProcessInputData以处理窗体接收到的命令
 //		
@@ -141,16 +122,38 @@ u8 pBuff1[32];
 //OLED_ShowChineseFromBuff(10,20,16,1,pBuff);
 
 		//r_dat_bat(0x3b7c0,12,pBuff1);
-		OLED_ShowString(10,20,chr,WORD_SIZE,1);
+//		OLED_ShowString(10,20,chr,WORD_SIZE,1);
 		//UG_PutString(10,20,"hello");
 		//HAL_Delay(5000);
 		OLED_Refresh();//调用硬件指令刷新oled屏，将显存中的内容真正显示到oled屏上
 					//GetKey();
+/*
+代码测试区，用于测试新引入的方法与函数
+static void _build(void *handler, uint8_t type, uint8_t command, uint8_t *payload, uint8_t size, struct StreamBuffer *buffer)
+以下构造一个不包含负载的10个字节的报文，查看从buffer.buffer[0->9]
+
+struct StreamBuffer buffer;
+
+stream_frame_type *handler= stream_frame_create_handler();
+handler->ops->init(handler);
+uint8_t type=0x01;
+uint8_t command=0x02;
+uint8_t size=0;
+uint8_t *payload=0;
+handler->ops->build(handler,type,command,payload,size,&buffer);
+buffer.buffer[100]=0;
+uint8_t sample[10]={58 4A 01 01 02 00 27 e6 ee ee};
+//1-2字节为包头，3-类型，4-方向，5-命令，6-负载长度，倒数3-4crc，倒数1-2包尾
+/*
+代码测试区结束
+*/
+
+
 		while(1){
 
 		while(!value){}//当没有任何输入时死循环，输入来自于中断处理函数SysTick_Handler
 			if(mc.currWnd){
-				CX_InputUpdate(value);//根据value值设置gui->input内容
+				CX_InputUpdate(value);//根据value值设置gui->input内容,value的设置来自于三个中断处理函数SysTick_Handler负责设置按键值，HAL_TIM_PeriodElapsedCallback负责设置光标闪烁值，USART2_IRQHandler负责设置串口输入
 				value='\0';
 				UG_Update();//处理gui->input数据，以此为依据更改窗体内容
 				OLED_Refresh();	//根据显存刷新oled屏显示内容				

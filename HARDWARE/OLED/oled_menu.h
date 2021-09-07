@@ -8,7 +8,7 @@
 #define MAX_ITEM_SERIES 12 //THE MAX NUMBER OF MENU SERIES
 #define VMARGIN 5 //上边界宽度
 #define HMARGIN 10 //左边界宽度
-#define ROW_HEIGHT 16
+#define ROW_HEIGHT 13
 #define MAX_HEIGHT 64
 #define WORD_SIZE 16
 

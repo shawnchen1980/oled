@@ -494,12 +494,13 @@ void OLED_ShowChineseFromBuff(u8 x,u8 y,u8 size1,u8 mode,u8* buff)
 	u8 m,temp;
 	u8 x0=x,y0=y;
 	u16 i,size3=(size1/8+((size1%8)?1:0))*size1;  //得到字体一个字符对应点阵集所占的字节数
+	u16 h=8;
 	size3=24;//12*12汉字字体，占24个字节，size1应当为12
 	for(i=0;i<size3;i++)
 	{
 		temp=buff[i];//调用12*12字体
 
-		for(m=0;m<8;m++)
+		for(m=0;m<h;m++)
 		{
 			if(temp&0x01)OLED_DrawPoint(x,y,mode);
 			else OLED_DrawPoint(x,y,!mode);
@@ -508,7 +509,7 @@ void OLED_ShowChineseFromBuff(u8 x,u8 y,u8 size1,u8 mode,u8* buff)
 		}
 		x++;
 		if((x-x0)==size1)
-		{x=x0;y0=y0+8;}
+		{x=x0;y0=y0+8;if(size1==12) h=4;}
 		y=y0;
 	}
 }
@@ -518,12 +519,12 @@ void OLED_ShowASCIIFromBuff(u8 x,u8 y,u8 mode,u8* buff)
 	u8 m,temp;
 	u8 x0=x,y0=y;
 	u8 size1=6;  //字体列数
-	u16 i,size3=12;  //得到字体一个字符对应点阵集所占的字节数
+	u16 i,size3=12,h=8;  //得到字体一个字符对应点阵集所占的字节数
 	for(i=0;i<size3;i++)
 	{
 		temp=buff[i];//调用6*12字体
 
-		for(m=0;m<8;m++)
+		for(m=0;m<h;m++)
 		{
 			if(temp&0x01)OLED_DrawPoint(x,y,mode);
 			else OLED_DrawPoint(x,y,!mode);
@@ -532,7 +533,7 @@ void OLED_ShowASCIIFromBuff(u8 x,u8 y,u8 mode,u8* buff)
 		}
 		x++;
 		if((x-x0)==size1)
-		{x=x0;y0=y0+8;}
+		{x=x0;y0=y0+8;h=4;}
 		y=y0;
 	}
 }

@@ -252,7 +252,7 @@ typedef struct
 #define INPUT_KEY_DOWN		16
 #define INPUT_KEY_OK			32
 #define INPUT_KEY_CANCEL	64
-
+#define INPUT_STREAM_FRAME	128
 
 /* -------------------------------------------------------------------------------- */
 /* -- OBJECTS                                                                    -- */

@@ -40,7 +40,7 @@ set the pin number in this file.
 #else
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
 #endif /* __GNUC__ */
-
+extern UART_HandleTypeDef UartHandle;
 HAL_StatusTypeDef Uart_Init();
 
 #endif /* __MAIN_H */

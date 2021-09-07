@@ -15,6 +15,7 @@
 /* includes ------------------------------------------------------------------*/
 //#include <rtthread.h>
 #include "stream_frame.h"
+#include "stdio.h"
 //#include "check.h"
 
 /* private define ------------------------------------------------------------*/
@@ -93,7 +94,7 @@ static void _build(void *handler, uint8_t type, uint8_t command, uint8_t *payloa
     this->streamStruct.header[0] = Header1;
     this->streamStruct.header[1] = Header2;
     this->streamStruct.type = type;
-    this->streamStruct.direction = 0x01;
+    this->streamStruct.direction = 0x01;//此处将来需要根据协议修改
     this->streamStruct.command = command;
     this->streamStruct.size = size;
 
@@ -151,7 +152,12 @@ static void _parse(void *handler, uint8_t *data, uint8_t size, void (*callback)(
                             // 回调函数处理数据
                             if (callback != NULL)
                                 callback(&this->streamStruct);
+														return;
                         }
+												else 
+												{
+													printf("crc wrong!\n");
+												}
                     }
                 }
                 else if (this->streamBuffer.index > this->streamStruct.size + 10)

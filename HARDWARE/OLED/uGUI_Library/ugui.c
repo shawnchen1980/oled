@@ -5894,6 +5894,9 @@ void CX_InputUpdate(UG_U8 val)
 		case 'c':
 			gui->input|=INPUT_KEY_CANCEL;
 			break;
+		case 'X': //case 0x58:收到串口报文
+			gui->input|= INPUT_STREAM_FRAME;
+			break;
 	}
 }
 

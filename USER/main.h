@@ -47,9 +47,12 @@
 #include "stm32l0xx_hal.h"
 #include "oled.h"
 #include "stdint.h"
+#include "stream_frame.h"
 //#include "bmp.h"
 
 extern uint8_t getBuffer[255];
+extern uint8_t value;//来自中断处理函数传来的消息,getBuffer[0]的值
+extern uint8_t frameSize;//从串口收到的报文具体长度
 /* USER CODE END Includes */
 
 /* Private define ------------------------------------------------------------*/

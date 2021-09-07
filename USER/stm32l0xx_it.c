@@ -105,6 +105,8 @@ void PendSV_Handler(void)
 }
 int syst=0;
 extern uint8_t value;
+extern uint8_t frameSize;
+
 /**
 * @brief This function handles System tick timer.
 */
@@ -143,7 +145,7 @@ void SysTick_Handler(void)
 
 				}
 			}
-		printf("systick handler");
+		//printf("systick handler");
 		syst=0;
 	}
 
@@ -164,7 +166,7 @@ extern __IO ITStatus UartReady;
 
 
 int count=0;
-//下列串口中断处理程序会将收到的报文放入getBuffer缓存区
+//下列串口中断处理程序会将收到的报文放入getBuffer缓存区，报文长度放入frameSize，单字节标识放入value
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
@@ -177,7 +179,7 @@ void USART2_IRQHandler(void)
 	{
 		HAL_UART_Receive(&UartHandle,&res,1,1000);
 		//将数据放入缓冲区
-		if(res >0 )
+		if(res >=0 )
 		{
 			getBuffer[count++] = res; 
 			getBuffer[count]=0;
@@ -192,6 +194,10 @@ void USART2_IRQHandler(void)
 				
 				if(count>0){
 //				printf("%s",(char*)getBuffer);
+					if(count>1)
+						frameSize=count;
+					else
+						frameSize=0;
 					
 				value=getBuffer[0];
     	 	count=0;
